@@ -1,0 +1,89 @@
+@author Axl Zhao
+//根据ascii控制字符确定, 首字节置0x9d,次字节填充ascii控制字符,如下:
+private static final byte UPLOAD_REQ    = (byte)0xff; //0000 0101 | 0x05 | ENQ (enquiry)
+private static final byte UPLOAD_ST_OK  = (byte)0xfe; //0000 0110 | 0x06 | ACK (acknowledge)
+private static final byte UPLOAD_ST_ERR = (byte)0xfd; //0001 0101 | 0x15 | NAK (negative acknowledge)
+
+request header size = 2 + 64 + 64 + 8 + 8 + 4
+private static String request = "" +
+        "|CMD_SOH[2bytes]" +
+        "|fileCsId[64bytes]" +
+        "|operationToken[64bytes]" +
+        "|fileLength[8bytes]" +
+        "|transferContentLength[8bytes]" +
+        "|trunkLength[4bytes]" +
+        "|CMD_STX[2bytes]"
+        "|fileTrunkContent..."
+        "|CMD_ETB[2bytes]"
+        "|fileTrunkContent..."
+        "|CMD_ETB[2bytes]"
+        "|fileTrunkContent..."
+        "|CMD_ETB[2bytes]"
+        ....behind last block....
+        "|CMD_EOT[2bytes]"
+        ;
+
+response header size = 2
+private static String response = "" +
+        "|cmd_st[2bytes]" +
+        remove---"|fileCsId[64bytes]" +
+        remove---"|operationToken[64bytes]" +
+        remove---"|message[64bytes]" +
+
+CMD format:  
+    
+    00000000 0x00 success
+    00000001 0x01 failure
+
+7   : none,
+6   : is failure,
+5   : is warn,
+4   : is success,
+3-0 : command code.
+================================
+bits[7|6|5|4|3210] Hex
+    [x|?|?|?|0000] 0x00  CMD_UNKNOW
+    [x|?|?|?|0001] 0x01  (reverse)
+    [x|?|?|?|0010] 0x02  CMD_SOH
+    [x|?|?|?|0011] 0x03  CMD_STX
+    [x|?|?|?|0100] 0x04  CMD_EOT
+    [x|?|?|?|0101] 0x05  CMD_ETB
+    [x|?|?|?|0110] 0x06  CMD_CAN
+    [x|?|?|?|0111] 0x07  CMD_STOP
+    [x|?|?|?|1000] 0x08  
+    [x|?|?|?|1001] 0x09
+    [x|?|?|?|1010] 0x0a
+    [x|?|?|?|1011] 0x0b
+    [x|?|?|?|1100] 0x0c  
+    [x|?|?|?|1101] 0x0d
+    [x|?|?|?|1110] 0x0e
+    [x|?|?|?|1111] 0x0f
+=================================
+
+
+chunkable file transfer protocol
+-------------------------------------
+file_identify   16 bytes  [file checksum(md5) name]
+chunk_ctl       1  byte   [256 case control]
+chunk_seq       4  bytes  [max count of chunks 4G]
+chunk_size      3  bytes  [max chunk size = 16MB]
+chunk_checksum  16 bytes  []
+
+[0-127 | 128-135 | 136-167 | 168-191 | 192-319]
+ f_i     c_ctl     c_seq     c_size    c_cs
+
+max support file len = 65535 TB = 64EB
+
+CMD_TR          command transfer request
+CMD_TR_RESP     command transfer request response
+CMD_ST          command start transfer
+CMD_ST_RESP     command start transfer response
+CMD_CTR         command chunk transfer request
+CMD_CTR_RESP    command chunk transfer request response
+CMD_CTSR        command chunk transfer status report 
+CMD_CTSR_RESP   command chunk transfer status report response
+
+
+
+
+
