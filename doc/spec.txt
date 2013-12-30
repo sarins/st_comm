@@ -74,14 +74,52 @@ chunk_checksum  16 bytes  []
 
 max support file len = 65535 TB = 64EB
 
+=================================================
 CMD_TR          command transfer request
+header: [CMD: byte(2)| attribute-length: byte(2)]
+body  : [filename: byte(64)| file-length: long{byte(8)}| file-identify(md5): byte(16)]
+-------------------------------------------------
 CMD_TR_RESP     command transfer request response
+header: [CMD_RESP: byte(2)| attribute-length: byte(2)]
+body  : [file-identify(md5): byte(16)| OP-token(md5): byte(16)|　
+        chunk-length: integer{byte(4)}| start-transfer-position: long{byte(8)}]
+-------------------------------------------------
 CMD_ST          command start transfer
+header: [CMD: byte(2)| attribute-length: byte(2)]
+body  : [OP-token(md5): byte(16)]
+-------------------------------------------------
 CMD_ST_RESP     command start transfer response
+header: [CMD_RESP: byte(2)| attribute-length: byte(2)]
+body  : [error-code: short{byte(2)}]
+-------------------------------------------------
+CMD_DCTT        command dispatch chunk transfer task
+header: [CMD: byte(2)| attribute-length: byte(2)]
+body  : [OP-token(md5): byte(16)| chunk-serial: integer{byte(4)}|
+        chunk-size: byte(3)]
+-------------------------------------------------
+CMD_DCTT_RESP   command dispatch chunk transfer task response
+header: [CMD_RESP: byte(2)| attribute-length: byte(2)]
+body  : [error-code: short{byte(2)}]
+-------------------------------------------------
 CMD_CTR         command chunk transfer request
+header: [CMD: byte(2)| attribute-length: byte(2)]
+body  : [OP-token(md5): byte(16)| chunk-control: byte(1)| 
+        chunk-serial: integer{byte(4)}| chunk-size: byte(3)|
+        chunk-checksum(md5): byte(16)][chunk-content: byte([max]16M)]
+-------------------------------------------------
 CMD_CTR_RESP    command chunk transfer request response
-CMD_CTSR        command chunk transfer status report 
-CMD_CTSR_RESP   command chunk transfer status report response
+header: [CMD_RESP: byte(2)| attribute-length: byte(2)]
+body  : [error-code: short{byte(2)}]
+-------------------------------------------------
+CMD_RCTS        command report chunk transfer status
+header: [CMD: byte(2)| attribute-length: byte(2)]
+body  : [OP-token(md5): byte(16)| chunk-serial: integer{byte(4)}|
+        status-code: short{byte(2)}| completed-bytes: byte(3)]
+------------------------------------------------- 
+CMD_RCTS_RESP   command report chunk transfer status response
+header: [CMD_RESP: byte(2)| attribute-length: byte(2)]
+body  : [error-code: short{byte(2)}]
+=================================================
 
 
 
